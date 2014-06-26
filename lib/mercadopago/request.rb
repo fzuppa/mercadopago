@@ -11,7 +11,13 @@ module MercadoPago
     #
     # This URL is the base for all API calls.
     #
-    MERCADOPAGO_URL = 'https://api.mercadolibre.com'
+		MERCADOPAGO_PRODUCTION_URL = 'https://api.mercadolibre.com'
+		MERCADOPAGO_SANDBOX_URL = 'https://api.mercadolibre.com/sandbox'
+		if (::Rails.env.development? || ENV["MERCADOPAGO_IS_SANDBOX"])
+			MERCADOPAGO_URL = MERCADOPAGO_SANDBOX_URL
+		else
+    	MERCADOPAGO_URL = MERCADOPAGO_PRODUCTION_URL
+		end
 
     #
     # Makes a POST request to a MercaPago API.
