@@ -17,7 +17,7 @@ module MercadoPago
 			MERCADOPAGO_URL = MERCADOPAGO_SANDBOX_URL
 		else
     	MERCADOPAGO_URL = MERCADOPAGO_PRODUCTION_URL
-		end
+    end
 
     #
     # Makes a POST request to a MercaPago API.
@@ -39,6 +39,16 @@ module MercadoPago
     #
     def self.wrap_get(path, headers = {})
       make_request(:get, path, nil, headers)
+    end
+
+    #
+    # Makes a PUT request to a MercaPago API.
+    #
+    # - path: the path of the API to be called, including any query string parameters.
+    # - headers: the headers to be transmitted over the HTTP request.
+    #
+    def self.wrap_put(path, payload, headers = {})
+      make_request(:put, path, payload, headers)
     end
 
     #

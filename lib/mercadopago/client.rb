@@ -63,6 +63,11 @@ module MercadoPago
       MercadoPago::Checkout.get_preference(@access_token, preference_id)
     end
 
+    # Creo un pago recurrente
+    def create_preapproval_payment(data)
+      MercadoPago::Preapproval.create_preapproval_payment(@access_token, data)
+    end
+
     #
     # Retrieves the latest information about a payment or a merchant order.
     #
@@ -74,6 +79,8 @@ module MercadoPago
       case topic.to_s
       when 'merchant_order'
         MercadoPago::MerchantOrder.notification(@access_token, entity_id)
+      when 'preapproval'
+        MercadoPago::Preapproval.get_preference(@access_token, entity_id)
       else # 'payment'
         MercadoPago::Collection.notification(@access_token, entity_id)
       end
