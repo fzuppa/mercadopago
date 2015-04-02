@@ -11,8 +11,8 @@ module MercadoPago
     #
     # This URL is the base for all API calls.
     #
-		MERCADOPAGO_PRODUCTION_URL = 'https://api.mercadolibre.com'
-		MERCADOPAGO_SANDBOX_URL = 'https://api.mercadolibre.com/sandbox'
+		MERCADOPAGO_PRODUCTION_URL = 'https://api.mercadopago.com'
+		MERCADOPAGO_SANDBOX_URL = 'https://api.mercadopago.com/sandbox'
 		if (::Rails.env.development? || ENV["MERCADOPAGO_IS_SANDBOX"])
 			MERCADOPAGO_URL = MERCADOPAGO_SANDBOX_URL
 		else
@@ -62,7 +62,7 @@ module MercadoPago
     def self.make_request(type, path, payload = nil, headers = {})
       args = [type, MERCADOPAGO_URL, path, payload, headers].compact
 
-      connection = Faraday.new(MERCADOPAGO_URL, ssl: { version: :SSLv3 })
+      connection = Faraday.new(MERCADOPAGO_URL)
 
       response = connection.send(type) do |req|
         req.url path

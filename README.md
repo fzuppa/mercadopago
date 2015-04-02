@@ -1,7 +1,7 @@
 MercadoPago Gem
 ===============
 
-Developed and maintained by the team of [Kauplus](http://www.kauplus.com).
+Developed and maintained by [Kauplus](http://www.kauplus.com).
 
 This is a Ruby client for all the services offered by [MercadoPago](http://www.mercadopago.com).
 
@@ -11,12 +11,10 @@ You can read the documentation of the MercadoPago API here:
 * Portuguese: https://developers.mercadopago.com/integracao-checkout
 * Spanish: https://developers.mercadopago.com/integracion-checkout
 
-
-
 Installation
 ------------
 
-mercadopago 2.0.0 needs Ruby 1.9. Version 1.0.2 runs fine with Ruby 1.8.
+mercadopago 2.0.0+ needs Ruby 1.9+. Version 1.0.2 runs fine with Ruby 1.8.
 
 To install the last version of the gem:
 
@@ -85,9 +83,10 @@ Your request will need a hash to explain what the payment is for. For example:
 If everything worked out alright, you will get a response like this:
 
     {
-      "payment_methods" => {},
-      "init_point"      => "https://www.mercadopago.com/mlb/checkout/pay?pref_id=abcdefgh-9999-9999-ab99-999999999999",
-      "collector_id"    => 123456789,
+      "payment_methods"    => {},
+      "init_point"         => "https://www.mercadopago.com/mlb/checkout/pay?pref_id=abcdefgh-9999-9999-ab99-999999999999",
+      "sandbox_init_point" => "https://sandbox.mercadopago.com/mlb/checkout/pay?pref_id=abcdefgh-9999-9999-ab99-999999999999",
+      "collector_id"       => 123456789,
       "back_urls" => {
         "pending"=> "https://www.site.com/pending",
         "success"=> "http://www.site.com/success",
@@ -283,6 +282,121 @@ And the parameters thay could be used in the search hash are:
         recurring_payment: Active subscription recurring payment.
         subscription_payment: Subscription fee.
 
+### Sandbox mode
+
+The sandbox mode can be enabled/disabled as follows:
+
+    mp_client.sandbox(true)  # Enables sandbox
+    mp_client.sandbox(false) # Disables sandbox
+
+### Recurring Payment Creation
+
+Your request will need a hash to explain what the recurring payment is for. For example:
+
+    data = {
+      payer_email:        "xxx@test.com",
+      back_url:           "http://www.site.com/return",
+      reason:             "Monthly Magazine",
+      external_reference: "OPERATION-ID-1234",
+      auto_recurring: {
+        frequency:          1,
+        frequency_type:     "months",
+        transaction_amount: 12.55,
+        currency_id:        "BRL"
+      }
+    }
+
+If everything worked out alright, you will get a response like this:
+
+    {
+       "id"                 => "f8ad8asd8asd98asd89add980",
+       "payer_id"           => 131231333,
+       "payer_email"        => "xxx@test.com",
+       "back_url"           => "http://www.site.com/return",
+       "collector_id"       => 3131231231,
+       "application_id"     => 83818921839,
+       "status"             => "authorized",
+       "reason"             => "Monthly Magazine",
+       "external_reference" => "OPERATION-ID-1234",
+       "date_created"       => "2014-08-03T20:47:53.970-04:00",
+       "last_modified"      => "2014-08-03T20:51:00.264-04:00",
+       "init_point"         => "https://www.mercadopago.com/mlb/debits/new?preapproval_id=8ad8asd8ada8da8dad88sa",
+       "auto_recurring" => {
+        "frequency"          => 1,
+        "frequency_type"     => "months",
+        "transaction_amount" => 12.55,
+        "currency_id"        => "BRL"
+       }
+    }
+
+
+### Recurring Payment Status Verification Next Recurring Payments by IPN
+
+To check the recurring payment status you will need the preapproval ID next recurring payments. Only then you can call the [MercadoPago IPN](https://developers.mercadopago.com/beta/documentacao/notificacoes-de-pagamentos#!/get-preapproval).
+
+    # Use the preapproval ID received on the IPN.
+    preapproval_id = '987654321'
+
+    notification = mp_client.notification_authorized(preapproval_id)
+
+You will get a response like this one:
+
+Status code: 200 OK
+
+    {
+        "preapproval_id":     "preapproval_id",
+        "id":                 "authorized_payment_id",
+        "type":               "online",
+        "status":             "processed",
+        "date_created":       "2014-05-22T11:53:37.074-04:00",
+        "last_modified":      "2014-05-22T11:53:37.074-04:00",
+        "transaction_amount": 150,
+        "currency_id":        "BRL",
+        "payment":
+        {
+            "id":            "payment_id",
+            "status":        "approved",
+            "status_detail": "accredited"
+        }
+    }
+
+### Recurring Payment Status Verification by IPN
+
+To check the recurring payment status you will need the preapproval ID. Only then you can call the [MercadoPago IPN](https://developers.mercadopago.com/beta/documentacao/notificacoes-de-pagamentos#!/get-preapproval).
+
+    # Use the preapproval ID received on the IPN.
+    preapproval_id = '987654321'
+
+    notification = mp_client.notification_preapproval(preapproval_id)
+
+You will get a response like this one:
+
+Status code: 200 OK
+
+    {
+      "id":                 "preapproval_id",
+      "payer_id":           12345,
+      "payer_email":        "payeremail@email.com",
+      "back_url":           "https://www.mysite.com/afterAuth",
+      "collector_id":       12345,
+      "application_id":     10648,
+      "status":             "authorized",
+      "init_point":         "https://www.mercadopago.com/mlb/debits/new?preapproval_id=preapproval_id",
+      "sandbox_init_point": "https://www.mercadopago.com/mlb/debits/new?preapproval_id=preapproval_id",
+      "external_reference": "OP-1234",
+      "reason":             "Detailed description about your service",
+      "auto_recurring": {
+        "frequency":          1,
+        "frequency_type":     "months",
+        "transaction_amount": 60,
+        "currency_id":        "BRL"
+      },
+      "date_created":  "2012-08-31T11:50:26.648-04:00",
+      "last_modified": "2012-08-31T11:50:26.648-04:00"
+    }
+
+
+
 ### Errors
 
 Errors will also be hashes with status code, message and error key.
@@ -304,6 +418,14 @@ This gem has tests for a few methods. To check if it is working properly, just r
 
 Changelog
 ---------
+
+2.2.0 (thanks gulymaestro)
+
+Added support to the sandbox mode.
+
+2.1.0 (thanks jamessonfaria)
+
+Added functionality to create and get recurring payments. Also added support for recurring payments notification.
 
 2.0.2
 

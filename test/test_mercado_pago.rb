@@ -1,9 +1,9 @@
 # encoding: utf-8
 
-require 'minitest/autorun'
+require 'test/unit'
 require 'mercadopago'
 
-class TestMercadoPago < MiniTest::Unit::TestCase
+class TestMercadoPago < Test::Unit::TestCase
 
   #
   # Valid credentials to be used in the tests.
@@ -95,21 +95,29 @@ class TestMercadoPago < MiniTest::Unit::TestCase
     assert_equal "https://www.mercadopago.com/mlb/checkout/pay?pref_id=#{pref_id}", response['init_point']
   end
 
-  def test_that_client_can_get_notification
-    payment_id = 460494008
+  def test_that_client_can_get_payment_notification
+    payment_id = 849707350
     mp_client = MercadoPago::Client.new(CREDENTIALS[:client_id], CREDENTIALS[:client_secret])
 
     response = mp_client.notification(payment_id)
     assert_equal payment_id, response['collection']['id']
   end
 
+  def test_that_client_can_get_merchant_order_notification
+    payment_id = 61166827
+    mp_client = MercadoPago::Client.new(CREDENTIALS[:client_id], CREDENTIALS[:client_secret])
+
+    response = mp_client.notification(payment_id, 'merchant_order')
+    assert_equal payment_id, response['id']
+  end
+
   def test_that_client_can_search
     mp_client = MercadoPago::Client.new(CREDENTIALS[:client_id], CREDENTIALS[:client_secret])
-    response = mp_client.search(status: :pending)
+    response = mp_client.search(status: :refunded)
 
     assert response.has_key?('results')
 
-    external_reference = 'OPERATION-ID-1234'
+    external_reference = '55723'
     response = mp_client.search(external_reference: external_reference)
     results = response['results']
 
